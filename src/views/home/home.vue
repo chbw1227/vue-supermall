@@ -6,7 +6,11 @@
 				<div>购物街</div>
 			</template>
 		</nav-bar>
-		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll">
+		<scroll class="content" ref="scroll" 
+        :probe-type="3" 
+        @scroll="contentScroll" 
+        :pull-up-load='true' 
+        @pullingUp="loadMore">
 			<!-- banner轮播图 -->
 			<home-swiper :banners="banners" />
 			<!-- Recomend -->
@@ -95,7 +99,8 @@ export default {
 			homeApi.getHomeGoods(type, page).then(res => {
 				console.log(res.data)
 				this.goods[type].list.push(...res.data.list);
-				this.goods[type].page += 1
+                this.goods[type].page += 1;
+                this.$refs.scroll.finishPullUp()
 			})
 		},
         /**
@@ -115,13 +120,14 @@ export default {
 			}
 		},
 		contentScroll(position) {
-			console.log(position)
+			// console.log(position)
 			this.isShowBacktop = -(position.y) > 1000
-
 		},
-		//返回顶部
 		backClick() {
 			this.$refs.scroll.scrollTo(0, 0, 500)
+		},
+		loadMore() {
+			this.getHomeGoods(this.currentType)
 		}
 	},
 	created() {
