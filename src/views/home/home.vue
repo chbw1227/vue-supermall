@@ -6,11 +6,8 @@
 				<div>购物街</div>
 			</template>
 		</nav-bar>
-		<scroll class="content" ref="scroll" 
-        :probe-type="3" 
-        @scroll="contentScroll" 
-        :pull-up-load='true' 
-        @pullingUp="loadMore">
+		<scroll class="content" ref="scroll" :probe-type="3" 
+        @scroll="contentScroll" :pull-up-load='true' @pullingUp="loadMore">
 			<!-- banner轮播图 -->
 			<home-swiper :banners="banners" />
 			<!-- Recomend -->
@@ -18,7 +15,8 @@
 			<!-- feature -->
 			<feature-view />
 			<!-- tabControl -->
-			<tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"></tab-control>
+			<tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"
+            ref="tabControl"></tab-control>
 			<goods-list :goods="showGoods">
 				<goods-list-item></goods-list-item>
 			</goods-list>
@@ -42,6 +40,8 @@ import GoodsList from 'components/content/goods/GoodsList'
 import GoodsListItem from 'components/content/goods/GoodsListItem'
 
 import homeApi from 'assets/api/home/home'
+
+import { debounce } from 'common/utils'
 export default {
 	name: 'Home',
 	components: {
@@ -99,12 +99,13 @@ export default {
 			homeApi.getHomeGoods(type, page).then(res => {
 				console.log(res.data)
 				this.goods[type].list.push(...res.data.list);
-                this.goods[type].page += 1;
-                this.$refs.scroll.finishPullUp()
+				this.goods[type].page += 1;
+				this.$refs.scroll.finishPullUp()
 			})
 		},
+
         /**
-         * 事件监听方法
+         * 事件监听相关方法
          */
 		tabClick(index) {
 			switch (index) {
@@ -128,7 +129,8 @@ export default {
 		},
 		loadMore() {
 			this.getHomeGoods(this.currentType)
-		}
+		},
+
 	},
 	created() {
 		// 请求houme页面数据
@@ -137,6 +139,16 @@ export default {
 		this.getHomeGoods('pop');
 		this.getHomeGoods('new');
 		this.getHomeGoods('sell');
+
+	},
+	mounted() {
+		// 监听item中图片加载完成
+		const refresh = debounce(this.$refs.scroll.refresh, 50)
+		this.$bus.$on('itemImgLoad', () => {
+			refresh()
+        })
+        // 获取tabControl的offsetTop
+        console.log(this.$refs.tabControl.$el.offsetTop)
 	},
 }
 </script>
