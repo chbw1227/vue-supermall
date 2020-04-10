@@ -24,6 +24,8 @@
 		<!-- 返回顶部 -->
 		<back-top @click.native="backClick" v-show="isShowBacktop"></back-top>
 	</div>
+
+    
 </template>
 
 <script>
@@ -185,12 +187,12 @@ export default {
 	height: 100vh;
 }
 .home-nav {
+	background-color: var(--color-tint);
+	color: white;
 	// position: fixed;
 	// left: 0;
 	// right: 0;
 	// top: 0;
-	background-color: var(--color-tint);
-	color: white;
 	// z-index: 9;
 }
 

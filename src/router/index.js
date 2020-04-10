@@ -6,10 +6,11 @@ const home = () => import('../views/home/Home.vue')
 const category = () => import('../views/category/Category.vue')
 const cart = () => import('../views/cart/cart.vue')
 const profile = () => import('../views/profile/profile.vue')
+const detail = () => import('../views/detail/Detail.vue')
 const routes = [
     {
-        path:'',
-        redirect:'/home'
+        path: '',
+        redirect: '/home'
     },
     {
         path: '/home',
@@ -29,6 +30,10 @@ const routes = [
     {
         path: '/profile',
         component: profile
+    },
+    {
+        path: '/detail/:id',
+        component: detail
     }
 ]
 
