@@ -6,17 +6,17 @@
 				<div>购物街</div>
 			</template>
 		</nav-bar>
-		<scroll class="content" ref="scroll" :probe-type="3" 
-        @scroll="contentScroll" :pull-up-load='true' @pullingUp="loadMore">
+		<tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick" ref="tabControl1" v-show="isTabFixed">
+		</tab-control>
+		<scroll class="content" ref="scroll" :probe-type="3" @scroll="contentScroll" :pull-up-load='true' @pullingUp="loadMore">
 			<!-- banner轮播图 -->
-			<home-swiper :banners="banners" />
+			<home-swiper :banners="banners" @swiperImageLoad="swiperImageLoad" />
 			<!-- Recomend -->
 			<recommend-view :recommends="recommends" />
 			<!-- feature -->
 			<feature-view />
 			<!-- tabControl -->
-			<tab-control :titles="['流行','新款','精选']" class="tab-control" @tabClick="tabClick"
-            ref="tabControl"></tab-control>
+			<tab-control :titles="['流行','新款','精选']" :class="{ tabcontrol:isTabFixed }" @tabClick="tabClick" ref="tabControl"></tab-control>
 			<goods-list :goods="showGoods">
 				<goods-list-item></goods-list-item>
 			</goods-list>
@@ -75,12 +75,17 @@ export default {
 			},
 			currentType: 'pop',
 			isShowBacktop: false,
+			tabOffsetTop: 0,
+			isTabFixed: false,
 		}
 	},
 	computed: {
 		showGoods() {
 			return this.goods[this.currentType].list
-		}
+		},
+		// tabStyle() {
+		// 	return this.isTabFixed = -(position.y) > 1000
+		// }
 	},
 	methods: {
         /**
@@ -119,10 +124,15 @@ export default {
 					this.currentType = 'sell'
 					break
 			}
+			this.$refs.tabControl1.currentIndex = index
+			this.$refs.tabControl.currentIndex = index
 		},
 		contentScroll(position) {
 			// console.log(position)
-			this.isShowBacktop = -(position.y) > 1000
+			// 回到顶部
+			this.isShowBacktop = -(position.y) > 1000;
+			// tabControl吸顶效果
+			this.isTabFixed = -(position.y) > this.tabOffsetTop
 		},
 		backClick() {
 			this.$refs.scroll.scrollTo(0, 0, 500)
@@ -130,6 +140,9 @@ export default {
 		loadMore() {
 			this.getHomeGoods(this.currentType)
 		},
+		swiperImageLoad() {
+			this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
+		}
 
 	},
 	created() {
@@ -146,9 +159,9 @@ export default {
 		const refresh = debounce(this.$refs.scroll.refresh, 50)
 		this.$bus.$on('itemImgLoad', () => {
 			refresh()
-        })
-        // 获取tabControl的offsetTop
-        console.log(this.$refs.tabControl.$el.offsetTop)
+		})
+		// 获取tabControl的offsetTop
+		// console.log(this.$refs.tabControl.$el.offsetTop)
 	},
 }
 </script>
@@ -156,21 +169,21 @@ export default {
 <style lang='scss' scoped>
 .home {
 	position: relative;
-	padding-top: 44px;
+	// padding-top: 44px;
 	height: 100vh;
 }
 .home-nav {
-	position: fixed;
-	left: 0;
-	right: 0;
-	top: 0;
+	// position: fixed;
+	// left: 0;
+	// right: 0;
+	// top: 0;
 	background-color: var(--color-tint);
 	color: white;
-	z-index: 9;
+	// z-index: 9;
 }
+
 .tab-control {
-	position: sticky;
-	top: 44px;
+	position: relative;
 	z-index: 9;
 }
 .content {
