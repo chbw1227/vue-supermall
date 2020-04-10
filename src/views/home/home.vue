@@ -77,6 +77,7 @@ export default {
 			isShowBacktop: false,
 			tabOffsetTop: 0,
 			isTabFixed: false,
+			saveY: 0
 		}
 	},
 	computed: {
@@ -102,7 +103,7 @@ export default {
 		getHomeGoods(type) {
 			const page = this.goods[type].page + 1;
 			homeApi.getHomeGoods(type, page).then(res => {
-				console.log(res.data)
+				// console.log(res.data)
 				this.goods[type].list.push(...res.data.list);
 				this.goods[type].page += 1;
 				this.$refs.scroll.finishPullUp()
@@ -142,8 +143,19 @@ export default {
 		},
 		swiperImageLoad() {
 			this.tabOffsetTop = this.$refs.tabControl.$el.offsetTop
-		}
+		},
 
+
+	},
+	activated() {
+		// console.log('act')
+		this.$refs.scroll.refresh()
+		this.$refs.scroll.scrollTo(0, this.saveY, 0);
+	},
+
+	deactivated() {
+		this.saveY = this.$refs.scroll.scroll.y
+		// console.log('de',this.saveY)
 	},
 	created() {
 		// 请求houme页面数据
