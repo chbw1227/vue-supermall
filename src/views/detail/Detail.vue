@@ -31,7 +31,7 @@ export default {
 				.then(res => {
 					console.log(res.result)
                     this.topImages = res.result.itemInfo.topImages
-                    console.log('轮播图图片',res.result.itemInfo.topImages)
+                    // console.log('轮播图图片',res.result.itemInfo.topImages)
 				})
 		}
 	},

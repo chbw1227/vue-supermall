@@ -1,11 +1,9 @@
 <template>
-	<!-- <div class="datail-swiper"> -->
 		<swiper class="items">
 			<swiper-item v-for="item in topImages">
 				<img :src="item" alt="">
 			</swiper-item>
 		</swiper>
-	<!-- </div> -->
 </template>
 
 <script>
