@@ -1,39 +1,71 @@
 <template>
 	<div class="detail">
-		<detail-nav-bar></detail-nav-bar>
-		<detail-swiper :top-images="topImages"></detail-swiper>
+		<detail-nav-bar class="detail-nav"></detail-nav-bar>
+		<scroll class="content" ref="scroll">
+			<detail-swiper :top-images="topImages"></detail-swiper>
+			<detail-info :goods="goods"></detail-info>
+			<detail-shop-info :shop="shop"></detail-shop-info>
+			<detail-image :detail-info="detailInfo" @imageLoad="imageLoad"></detail-image>
+            <detail-param :param-info="paramInfo"></detail-param>
+		</scroll>
 	</div>
 </template>
 
 <script>
+//导入公共组件
+import Scroll from 'components/common/scroll/Scroll'
 // 导入子组件
 import DetailNavBar from './cildComps/DetailNavBar'
 import DetailSwiper from './cildComps/DetailSwiper'
+import DetailInfo from './cildComps/DetailInfo'
+import DetailShopInfo from './cildComps/DetailShopInfo'
+import DetailImage from './cildComps/DetailImage'
+import DetailParam from './cildComps/DetailParam'
 
-
-import detailApi from 'assets/api/detail/detail'
+import { getDetailList, Goods, Shop, GoodsParam } from 'assets/api/detail/detail'
 export default {
 	name: 'Detail',
 	components: {
+		Scroll,
 		DetailNavBar,
-		DetailSwiper
+		DetailSwiper,
+		DetailInfo,
+		DetailShopInfo,
+        DetailImage,
+        DetailParam
 	},
 	data() {
 		return {
 			iid: null,
-			topImages: []
+			topImages: [],
+			goods: {},
+			shop: {},
+			detailInfo: {},
+			paramInfo: {}
 		}
 	},
 	methods: {
 		// 获取详情
 		getDetailList() {
-			detailApi.getDetailList(this.iid)
+			getDetailList(this.iid)
 				.then(res => {
 					console.log(res.result)
-                    this.topImages = res.result.itemInfo.topImages
-                    // console.log('轮播图图片',res.result.itemInfo.topImages)
+					const data = res.result;
+					// 获取顶部的图片诗句
+					this.topImages = data.itemInfo.topImages;
+					// 获取商品信息
+					this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
+					//获取店铺信息
+					this.shop = new Shop(data.shopInfo)
+					//获取商品详情图片
+					this.detailInfo = data.detailInfo;
+					//获取上片参数
+					this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
 				})
-		}
+		},
+		imageLoad() {
+			this.$refs.scroll.refresh()
+		},
 	},
 	created() {
 		this.iid = this.$route.params.id;
@@ -43,4 +75,18 @@ export default {
 </script>
 
 <style lang='scss' scoped>
+.detail {
+	position: relative;
+	height: 100vh;
+	background-color: #fff;
+	z-index: 9;
+}
+.content {
+	height: calc(100% - 44px);
+}
+.detail-nav {
+	position: relative;
+	background-color: #fff;
+	z-index: 9;
+}
 </style>
