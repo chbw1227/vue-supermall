@@ -1,12 +1,13 @@
 <template>
 	<div class="detail">
-		<detail-nav-bar class="detail-nav"></detail-nav-bar>
+		<detail-nav-bar class="detail-nav" @titleClick="titleClick"></detail-nav-bar>
 		<scroll class="content" ref="scroll">
 			<detail-swiper :top-images="topImages"></detail-swiper>
 			<detail-info :goods="goods"></detail-info>
 			<detail-shop-info :shop="shop"></detail-shop-info>
 			<detail-image :detail-info="detailInfo" @imageLoad="imageLoad"></detail-image>
-            <detail-param :param-info="paramInfo"></detail-param>
+			<detail-param :param-info="paramInfo"></detail-param>
+			<detail-comment-info :comment-info="commentInfo"></detail-comment-info>
 		</scroll>
 	</div>
 </template>
@@ -21,6 +22,7 @@ import DetailInfo from './cildComps/DetailInfo'
 import DetailShopInfo from './cildComps/DetailShopInfo'
 import DetailImage from './cildComps/DetailImage'
 import DetailParam from './cildComps/DetailParam'
+import DetailCommentInfo from './cildComps/DetailCommentInfo'
 
 import { getDetailList, Goods, Shop, GoodsParam } from 'assets/api/detail/detail'
 export default {
@@ -31,8 +33,9 @@ export default {
 		DetailSwiper,
 		DetailInfo,
 		DetailShopInfo,
-        DetailImage,
-        DetailParam
+		DetailImage,
+		DetailParam,
+		DetailCommentInfo
 	},
 	data() {
 		return {
@@ -41,7 +44,9 @@ export default {
 			goods: {},
 			shop: {},
 			detailInfo: {},
-			paramInfo: {}
+			paramInfo: {},
+			commentInfo: {},
+			themeTopY: [0, 1000, 2000, 3000]
 		}
 	},
 	methods: {
@@ -54,18 +59,26 @@ export default {
 					// 获取顶部的图片诗句
 					this.topImages = data.itemInfo.topImages;
 					// 获取商品信息
-					this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services)
+					this.goods = new Goods(data.itemInfo, data.columns, data.shopInfo.services);
 					//获取店铺信息
-					this.shop = new Shop(data.shopInfo)
+					this.shop = new Shop(data.shopInfo);
 					//获取商品详情图片
 					this.detailInfo = data.detailInfo;
 					//获取上片参数
-					this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule)
+					this.paramInfo = new GoodsParam(data.itemParams.info, data.itemParams.rule);
+					//获取评论信息 
+					if (data.rate.cRate !== 0) {
+						this.commentInfo = data.rate.list[0]
+					}
 				})
 		},
 		imageLoad() {
 			this.$refs.scroll.refresh()
 		},
+		titleClick(index) {
+			console.log('index', index)
+			this.$refs.scroll.scrollTo(0, -this.themeTopY[index], 500)
+		}
 	},
 	created() {
 		this.iid = this.$route.params.id;

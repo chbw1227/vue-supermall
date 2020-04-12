@@ -36,8 +36,9 @@ export default {
 	},
 	methods: {
 		itemClick(index) {
-			console.log(index)
-			this.currentIndex = index
+			// console.log(index)
+            this.currentIndex = index;
+            this.$emit('titleClick',index)
         },
         backClick(){
             this.$router.go(-1)
