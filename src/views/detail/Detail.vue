@@ -8,6 +8,7 @@
 			<detail-image :detail-info="detailInfo" @imageLoad="imageLoad"></detail-image>
 			<detail-param :param-info="paramInfo"></detail-param>
 			<detail-comment-info :comment-info="commentInfo"></detail-comment-info>
+			<goods-list :goods="recommendList"></goods-list>
 		</scroll>
 	</div>
 </template>
@@ -15,6 +16,8 @@
 <script>
 //导入公共组件
 import Scroll from 'components/common/scroll/Scroll'
+
+import GoodsList from 'components/content/goods/GoodsList'
 // 导入子组件
 import DetailNavBar from './cildComps/DetailNavBar'
 import DetailSwiper from './cildComps/DetailSwiper'
@@ -24,7 +27,7 @@ import DetailImage from './cildComps/DetailImage'
 import DetailParam from './cildComps/DetailParam'
 import DetailCommentInfo from './cildComps/DetailCommentInfo'
 
-import { getDetailList, Goods, Shop, GoodsParam } from 'assets/api/detail/detail'
+import { getDetailList, getRecommend, Goods, Shop, GoodsParam } from 'assets/api/detail/detail'
 export default {
 	name: 'Detail',
 	components: {
@@ -35,7 +38,8 @@ export default {
 		DetailShopInfo,
 		DetailImage,
 		DetailParam,
-		DetailCommentInfo
+		DetailCommentInfo,
+		GoodsList
 	},
 	data() {
 		return {
@@ -46,7 +50,8 @@ export default {
 			detailInfo: {},
 			paramInfo: {},
 			commentInfo: {},
-			themeTopY: [0, 1000, 2000, 3000]
+			themeTopY: [0, 1000, 2000, 3000],
+			recommendList: []
 		}
 	},
 	methods: {
@@ -72,6 +77,13 @@ export default {
 					}
 				})
 		},
+		// 获取推荐数据
+		getRecommend() {
+			getRecommend().then(res => {
+				console.log(res.data.list)
+				this.recommendList = res.data.list
+			})
+		},
 		imageLoad() {
 			this.$refs.scroll.refresh()
 		},
@@ -82,7 +94,8 @@ export default {
 	},
 	created() {
 		this.iid = this.$route.params.id;
-		this.getDetailList()
+		this.getDetailList();
+		this.getRecommend()
 	}
 }
 </script>
