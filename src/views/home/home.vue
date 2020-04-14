@@ -25,7 +25,6 @@
 		<back-top @click.native="backClick" v-show="isShowBacktop"></back-top>
 	</div>
 
-    
 </template>
 
 <script>
@@ -44,6 +43,7 @@ import GoodsListItem from 'components/content/goods/GoodsListItem'
 import homeApi from 'assets/api/home/home'
 
 import { debounce } from 'common/utils'
+import { imageLoadMixin } from 'common/mixin'
 export default {
 	name: 'Home',
 	components: {
@@ -56,7 +56,8 @@ export default {
 		GoodsListItem,
 		Scroll,
 		BackTop
-	},
+    },
+    mixins:[ imageLoadMixin ],
 	data() {
 		return {
 			banners: [],
@@ -79,16 +80,13 @@ export default {
 			isShowBacktop: false,
 			tabOffsetTop: 0,
 			isTabFixed: false,
-			saveY: 0
+			saveY: 0,
 		}
 	},
 	computed: {
 		showGoods() {
 			return this.goods[this.currentType].list
 		},
-		// tabStyle() {
-		// 	return this.isTabFixed = -(position.y) > 1000
-		// }
 	},
 	methods: {
         /**
@@ -97,7 +95,6 @@ export default {
 		getHomeMultidata() {
 			homeApi.getHomeMultidata({
 			}).then(res => {
-				console.log(res)
 				this.banners = res.data.banner.list;
 				this.recommends = res.data.recommend.list
 			})
@@ -105,7 +102,7 @@ export default {
 		getHomeGoods(type) {
 			const page = this.goods[type].page + 1;
 			homeApi.getHomeGoods(type, page).then(res => {
-				// console.log(res.data)
+				console.log(res.data, 'goods')
 				this.goods[type].list.push(...res.data.list);
 				this.goods[type].page += 1;
 				this.$refs.scroll.finishPullUp()
@@ -156,8 +153,12 @@ export default {
 	},
 
 	deactivated() {
+		// 保存y值
 		this.saveY = this.$refs.scroll.scroll.y
 		// console.log('de',this.saveY)
+		// 取消全局事件监听
+		// 对监听事件进行保存
+		this.$bus.$off('itemImageLoad', this.itemImageListener)
 	},
 	created() {
 		// 请求houme页面数据
@@ -170,10 +171,12 @@ export default {
 	},
 	mounted() {
 		// 监听item中图片加载完成
-		const refresh = debounce(this.$refs.scroll.refresh, 50)
-		this.$bus.$on('itemImgLoad', () => {
-			refresh()
-		})
+    
+		// let newRefresh = debounce(this.$refs.scroll.refresh, 100)
+		// this.itemImageListener = newRefresh
+		// this.$bus.$on('itemImgLoad', () => {
+		// 	newRefresh()
+		// })
 		// 获取tabControl的offsetTop
 		// console.log(this.$refs.tabControl.$el.offsetTop)
 	},

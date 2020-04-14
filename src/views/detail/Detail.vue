@@ -6,9 +6,9 @@
 			<detail-info :goods="goods"></detail-info>
 			<detail-shop-info :shop="shop"></detail-shop-info>
 			<detail-image :detail-info="detailInfo" @imageLoad="imageLoad"></detail-image>
-			<detail-param :param-info="paramInfo"></detail-param>
-			<detail-comment-info :comment-info="commentInfo"></detail-comment-info>
-			<goods-list :goods="recommendList"></goods-list>
+			<detail-param ref="params" :param-info="paramInfo"></detail-param>
+			<detail-comment-info ref="comment" :comment-info="commentInfo"></detail-comment-info>
+			<goods-list ref="recommend" :goods="recommendList"></goods-list>
 		</scroll>
 	</div>
 </template>
@@ -28,6 +28,10 @@ import DetailParam from './cildComps/DetailParam'
 import DetailCommentInfo from './cildComps/DetailCommentInfo'
 
 import { getDetailList, getRecommend, Goods, Shop, GoodsParam } from 'assets/api/detail/detail'
+
+import { debounce } from 'common/utils'
+import { imageLoadMixin } from 'common/mixin'
+
 export default {
 	name: 'Detail',
 	components: {
@@ -41,6 +45,7 @@ export default {
 		DetailCommentInfo,
 		GoodsList
 	},
+	mixins: [imageLoadMixin],
 	data() {
 		return {
 			iid: null,
@@ -50,8 +55,9 @@ export default {
 			detailInfo: {},
 			paramInfo: {},
 			commentInfo: {},
-			themeTopY: [0, 1000, 2000, 3000],
-			recommendList: []
+			recommendList: [],
+			themeTopY: [],
+			getThemeTopY: null
 		}
 	},
 	methods: {
@@ -80,23 +86,35 @@ export default {
 		// 获取推荐数据
 		getRecommend() {
 			getRecommend().then(res => {
-				console.log(res.data.list)
+				console.log(res.data.list, 'recommend')
 				this.recommendList = res.data.list
 			})
 		},
 		imageLoad() {
 			this.$refs.scroll.refresh()
+			this.getThemeTopY()
 		},
 		titleClick(index) {
-			console.log('index', index)
+			// console.log('index', index)
 			this.$refs.scroll.scrollTo(0, -this.themeTopY[index], 500)
 		}
 	},
 	created() {
 		this.iid = this.$route.params.id;
 		this.getDetailList();
-		this.getRecommend()
-	}
+		this.getRecommend();
+		this.getThemeTopY = debounce(() => {
+			this.themeTopY = []
+			this.themeTopY.push(0);
+			this.themeTopY.push(this.$refs.params.$el.offsetTop - 44)
+			this.themeTopY.push(this.$refs.comment.$el.offsetTop - 44)
+			this.themeTopY.push(this.$refs.recommend.$el.offsetTop - 44)
+		},100)
+	},
+	destroyed() {
+		// console.log('111')
+		this.$bus.$off('itemImageListener', this.itemImageListener)
+	},
 }
 </script>
 
